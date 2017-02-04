@@ -1,23 +1,25 @@
-FROM armbuild/debian:jessie
+FROM armbuild/debian:sid
 MAINTAINER Heiko Hüter <ender@ender74.de>
 
 RUN apt-get update -y \
     && apt-get upgrade -y \
-    && apt-get install --no-install-recommends -y curl ca-certificates -y \
+    && apt-get install --no-install-recommends -y curl ca-certificates golang -y \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/* /root/.cache
 
 ENV ETCD_VER=v3.1.0
-ENV DOWNLOAD_URL=https://github.com/coreos/etcd/releases/download
-ENV ETCD_DIR=/opt/etcd-${ETCD_VER}
+ENV ETCD_DIR=/opt/go/src/github.com/coreos/etcd
+ENV GOPATH=/opt/go
 
-RUN curl -L ${DOWNLOAD_URL}/${ETCD_VER}/etcd-${ETCD_VER}-linux-amd64.tar.gz -o /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz \
+RUN curl -L https://github.com/coreos/etcd/archive/${ETCD_VER}.tar.gz -o /tmp/etcd-${ETCD_VER}.tar.gz \
   && mkdir -p ${ETCD_DIR} \
-  && tar xzvf /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz -C ${ETCD_DIR} --strip-components=1 \
-  && rm /tmp/etcd-${ETCD_VER}-linux-amd64.tar.gz \
-  && ln -s ${ETCD_DIR}/etcd /usr/local/bin/etcd \
-  && ln -s ${ETCD_DIR}/etcdctl /usr/local/bin/etcdctl
+  && tar xzvf /tmp/etcd-${ETCD_VER}.tar.gz -C ${ETCD_DIR} --strip-components=1 \
+  && rm /tmp/etcd-${ETCD_VER}.tar.gz \
+  && cd ${ETCD_DIR} \
+  && ./build \
+  && ln -s ${ETCD_DIR}/bin/etcd /usr/local/bin/etcd \
+  && ln -s ${ETCD_DIR}/bin/etcdctl /usr/local/bin/etcdctl
 
 EXPOSE 2379
 EXPOSE 2380
