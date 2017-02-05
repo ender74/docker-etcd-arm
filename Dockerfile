@@ -2,9 +2,6 @@ FROM ender74/golang-arm:1.7
 MAINTAINER Heiko Hüter <ender@ender74.de>
 
 ENV ETCD_VER=v3.1.0
-ENV GOOS=linux
-ENV GOARCH=arm
-ENV GOARM=7
 
 WORKDIR $GOPATH/src/github.com/coreos
 
