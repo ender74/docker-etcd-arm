@@ -1,25 +1,22 @@
-FROM armbuild/debian:sid
+FROM ender74/golang-arm:1.7
 MAINTAINER Heiko Hüter <ender@ender74.de>
 
-RUN apt-get update -y \
-    && apt-get upgrade -y \
-    && apt-get install --no-install-recommends -y curl ca-certificates golang -y \
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/* /root/.cache
-
 ENV ETCD_VER=v3.1.0
-ENV ETCD_DIR=/opt/go/src/github.com/coreos/etcd
-ENV GOPATH=/opt/go
+ENV GOOS=linux
+ENV GOARCH=arm
+ENV GOARM=7
 
-RUN curl -L https://github.com/coreos/etcd/archive/${ETCD_VER}.tar.gz -o /tmp/etcd-${ETCD_VER}.tar.gz \
-  && mkdir -p ${ETCD_DIR} \
-  && tar xzvf /tmp/etcd-${ETCD_VER}.tar.gz -C ${ETCD_DIR} --strip-components=1 \
-  && rm /tmp/etcd-${ETCD_VER}.tar.gz \
-  && cd ${ETCD_DIR} \
-  && ./build \
-  && ln -s ${ETCD_DIR}/bin/etcd /usr/local/bin/etcd \
-  && ln -s ${ETCD_DIR}/bin/etcdctl /usr/local/bin/etcdctl
+WORKDIR $GOPATH/src/github.com/coreos
+
+RUN git clone --branch $ETCD_VER https://github.com/coreos/etcd.git \
+    && cd etcd \
+    && ./build \
+    && cd bin \
+    && mkdir -p /usr/local/bin \
+    && cp etcd /usr/local/bin/etcd \
+    && cp etcdctl /usr/local/bin/etcdctl
+
+ENV ETCD_UNSUPPORTED_ARCH=arm
 
 EXPOSE 2379
 EXPOSE 2380

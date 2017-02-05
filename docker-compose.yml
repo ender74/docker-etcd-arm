@@ -2,7 +2,7 @@ version: '2'
 services:
     etcd:
         build: .
-        image: ender74/etcd-arm
+        image: ender74/etcd-arm:3.1.0
         ports:
             - "2379:2379"
             - "2380:2380"
